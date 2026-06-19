@@ -1,0 +1,73 @@
+name: Sync from monorepo
+
+# Publishes the Slint plugin from the slint-ui/slint monorepo into this repo.
+# The monorepo is the single source of truth; this repo is a generated mirror.
+#
+# By default it pulls from `pre-release/1.17` for now; switch this to
+# `release/1` (the latest stable release branch) once 1.17 ships, so this repo's
+# default branch always holds released content. Use the manual trigger with a
+# different `ref` to publish from another branch or a tag.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Monorepo ref to publish (branch or tag)"
+        required: false
+        default: "pre-release/1.17"
+  schedule:
+    # Daily. Skills only change on releases, so a small lag is fine.
+    - cron: "0 5 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-from-monorepo
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v7
+
+      - name: Fetch the plugin from the monorepo
+        env:
+          REF: ${{ github.event.inputs.ref || 'pre-release/1.17' }}
+        run: |
+          set -euo pipefail
+          # Clone outside the workspace so the checkout never lands in the
+          # published tree (and is not seen by the rsync --delete below).
+          git clone --depth 1 --filter=blob:none --sparse --branch "$REF" \
+            https://github.com/slint-ui/slint.git "$RUNNER_TEMP/monorepo"
+          git -C "$RUNNER_TEMP/monorepo" sparse-checkout set ai-plugins
+          echo "SLINT_SHA=$(git -C "$RUNNER_TEMP/monorepo" rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Sync the plugin
+        run: |
+          set -euo pipefail
+          if [ ! -d "$RUNNER_TEMP/monorepo/ai-plugins" ]; then
+            echo "Ref has no ai-plugins/ directory yet — nothing to publish."
+            exit 0
+          fi
+          # The monorepo's ai-plugins/ directory is the single source of truth.
+          # Mirror it onto this repo's root; README and .github are owned here
+          # and are preserved.
+          rsync -a --delete \
+            --exclude='.git' --exclude='.github' --exclude='README.md' \
+            "$RUNNER_TEMP/monorepo/ai-plugins/" ./
+
+      - name: Commit and push if changed
+        run: |
+          set -euo pipefail
+          git config user.name "slint-sync-bot"
+          git config user.email "noreply@slint.dev"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Already up to date."
+          else
+            git commit -m "Sync from slint-ui/slint@${SLINT_SHA}"
+            git push
+          fi
