@@ -13,34 +13,8 @@ Codex, and more.
 
 ## Install
 
-### Claude Code
-
-```sh
-/plugin marketplace add slint-ui/ai-plugins
-/plugin install slint@slint
-```
-
-### Codex
-
-```sh
-$skill-installer install https://github.com/slint-ui/ai-plugins/tree/master/skills/slint
-```
-
-### GitHub Copilot / GitHub CLI
-
-```sh
-gh skill install slint-ui/ai-plugins slint --agent claude-code
-```
-
-### npx skills (Cursor and others)
-
-```sh
-npx skills add slint-ui/ai-plugins --skill slint
-```
-
-See the [AI coding assistants
-guide](https://slint.dev/docs/slint/guide/tooling/ai-coding-assistants/) for the
-full instructions.
+For installation instructions, see the [AI coding assistants
+guide](https://slint.dev/docs/slint/guide/tooling/ai-coding-assistants/).
 
 ## What's inside
 
