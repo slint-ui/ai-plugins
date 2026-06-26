@@ -3,10 +3,9 @@ name: Sync from monorepo
 # Publishes the Slint plugin from the slint-ui/slint monorepo into this repo.
 # The monorepo is the single source of truth; this repo is a generated mirror.
 #
-# By default it pulls from `pre-release/1.17` for now; switch this to
-# `release/1` (the latest stable release branch) once 1.17 ships, so this repo's
-# default branch always holds released content. Use the manual trigger with a
-# different `ref` to publish from another branch or a tag.
+# By default it pulls from `release/1` (the latest stable release branch), so
+# this repo's default branch always holds released content. Use the manual
+# trigger with a different `ref` to publish from another branch or a tag.
 
 on:
   workflow_dispatch:
@@ -14,7 +13,7 @@ on:
       ref:
         description: "Monorepo ref to publish (branch or tag)"
         required: false
-        default: "pre-release/1.17"
+        default: "release/1"
   schedule:
     # Daily. Skills only change on releases, so a small lag is fine.
     - cron: "0 5 * * *"
@@ -35,7 +34,7 @@ jobs:
 
       - name: Fetch the plugin from the monorepo
         env:
-          REF: ${{ github.event.inputs.ref || 'pre-release/1.17' }}
+          REF: ${{ github.event.inputs.ref || 'release/1' }}
         run: |
           set -euo pipefail
           # Clone outside the workspace so the checkout never lands in the
