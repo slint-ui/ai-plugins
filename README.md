@@ -16,6 +16,9 @@ Codex, and more.
 For installation instructions, see the [AI coding assistants
 guide](https://slint.dev/docs/slint/guide/tooling/ai-coding-assistants/).
 
+For the nightly plugin, which follows Slint's `master` branch, use
+[slint-ui/ai-plugins-nightly](https://github.com/slint-ui/ai-plugins-nightly).
+
 ## What's inside
 
 - `skills/slint/` — the Slint development skill: `.slint` language and layout,
