@@ -44,8 +44,13 @@ jobs:
           # published tree (and is not seen by the rsync --delete below).
           git clone --depth 1 --filter=blob:none --sparse --branch "$REF" \
             https://github.com/slint-ui/slint.git "$RUNNER_TEMP/monorepo"
-          # The plugin's icons are symlinks into logo/.
-          git -C "$RUNNER_TEMP/monorepo" sparse-checkout set ai-plugins logo
+          git -C "$RUNNER_TEMP/monorepo" sparse-checkout set ai-plugins
+          # Check out the directories that the plugin's symlinks point into,
+          # such as logo/, so that rsync can copy their targets.
+          targets=$(cd "$RUNNER_TEMP/monorepo" \
+            && find ai-plugins -type l -exec realpath -m --relative-to=. {} \; \
+            | xargs -r -n1 dirname | sort -u)
+          git -C "$RUNNER_TEMP/monorepo" sparse-checkout add $targets
           echo "SLINT_SHA=$(git -C "$RUNNER_TEMP/monorepo" rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Sync the plugin
