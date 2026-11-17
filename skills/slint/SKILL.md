@@ -17,13 +17,14 @@ a declarative GUI toolkit for desktop, embedded, mobile, and web.
    `(1.17+)`, `(1.18+)`, … When the project pins an *older* version, or for
    exact element/property/widget signatures, trust that version's docs over
    this file rather than guessing.
-2. After editing: in an IDE with the Slint extension, trust the post-edit
-   diagnostics; in a terminal, `slint-viewer --check ui/main.slint` compiles
-   one file and prints diagnostics, and `slint-viewer --screenshot` renders it
-   (both `(1.17+)`; [debugging-and-mcp.md](reference/debugging-and-mcp.md)).
+2. After editing, check the compiler diagnostics.
+   An IDE with the Slint extension or Claude Code with `slint-lsp` reports them after each edit.
+   With Slint 1.17 or later, run `slint-viewer --check ui/main.slint` to check a file directly.
+   See [debugging-and-mcp.md](reference/debugging-and-mcp.md) for details.
 3. Never declare UI work done without looking at a render — a screenshot for
    appearance, the MCP server for interactions. Review against
    [polish.md](reference/polish.md).
+   Render a screenshot with `slint-viewer --screenshot` `(1.17+)`.
 4. Share the render when the host supports it: inline the screenshot in chat
    apps, or print its absolute path and summarize the visual checks in CLI-only
    environments.
@@ -57,6 +58,8 @@ Skim the matching file *before* building in that area, not only when stuck.
 | [interop.md](reference/interop.md) | Connecting the UI to host-language logic (models, callbacks, globals). |
 | [polish.md](reference/polish.md) | The UI works but looks rough; reviewing a rendered screenshot. |
 | [debugging-and-mcp.md](reference/debugging-and-mcp.md) | Runtime debugging, headless/CI rendering, screenshots, the MCP server. |
+| [licensing.md](reference/licensing.md) | The user asks about the license, or builds a closed-source app. |
+| [web-embedding.md](reference/web-embedding.md) | Showing a live `.slint` preview in a web page, HTML report, or docs. |
 | [tools-install.md](tools-install.md) | Installing `slint-lsp` (language server) or `slint-viewer` (preview / screenshots). |
 
 ## `.slint` in 30 seconds
@@ -91,9 +94,6 @@ skill only covers what agents commonly get wrong.
 Prefer the `slint-docs` MCP server when its `search` and `fetch` tools are
 available; this plugin declares it, so they usually are.
 Run `search`, then `fetch` a result's `url`.
-Without those tools, fetch over HTTP: latest at https://slint.dev/docs,
-a version pinned at `https://releases.slint.dev/<version>/docs`. Every page also serves
-its markdown source `(1.17+)`: swap the trailing slash for `.md`
-(`…/colors-and-brushes/` → `…/colors-and-brushes.md`), ~10× smaller than the
-HTML. It is raw MDX, so skip `import` lines; a few pages pull snippets from
-external files that won't appear inline.
+Without them, fetch https://slint.dev/docs (latest) or `https://releases.slint.dev/<version>/docs`.
+For ~10× fewer tokens `(1.17+)`, swap a page's trailing slash for `.md`: `…/property-types/colors-and-brushes/` → `…/property-types/colors-and-brushes.md`.
+That's raw MDX: skip `import` lines; some snippets live in external files.
