@@ -66,6 +66,10 @@ jobs:
           rsync -a --copy-unsafe-links --delete \
             --exclude='.git' --exclude='.github' --exclude='README.md' \
             "$RUNNER_TEMP/monorepo/ai-plugins/" ./
+          if [ -f mcp/.codex-plugin/plugin.json ]; then
+            mkdir -p mcp/guidance
+            rsync -a --exclude='SKILL.md' skills/slint/ mcp/guidance/
+          fi
           if [ -d mcp/slint-preview ]; then
             printf '{ "channel": "release" }\n' > mcp/slint-preview/channel.json
           fi
