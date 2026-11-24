@@ -36,6 +36,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Fetch the plugin from the monorepo
+        id: monorepo
         env:
           REF: ${{ github.event.inputs.ref || 'release/1' }}
         run: |
@@ -52,6 +53,16 @@ jobs:
             | xargs -r -n1 dirname | sort -u)
           git -C "$RUNNER_TEMP/monorepo" sparse-checkout add $targets
           echo "SLINT_SHA=$(git -C "$RUNNER_TEMP/monorepo" rev-parse HEAD)" >> "$GITHUB_ENV"
+          if [ -f "$RUNNER_TEMP/monorepo/ai-plugins/mcp/slint-preview/build-checker.mjs" ]; then
+            echo "build_checker=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js for the checker
+        if: steps.monorepo.outputs.build_checker == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
 
       - name: Build the preview checker
         if: steps.monorepo.outputs.build_checker == 'true'
