@@ -1,0 +1,13 @@
+{
+    "name": "slint-preview-mcp",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test:e2e": "node --test --test-timeout=600000 test/view.e2e.mjs",
+        "build:checker": "node build-checker.mjs",
+        "test:checker": "node --test ../../../api/wasm-interpreter/test/headless.test.mjs"
+    },
+    "devDependencies": {
+        "playwright": "catalog:"
+    }
+}
