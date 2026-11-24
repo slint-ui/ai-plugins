@@ -53,6 +53,23 @@ jobs:
           git -C "$RUNNER_TEMP/monorepo" sparse-checkout add $targets
           echo "SLINT_SHA=$(git -C "$RUNNER_TEMP/monorepo" rev-parse HEAD)" >> "$GITHUB_ENV"
 
+      - name: Build the preview checker
+        if: steps.monorepo.outputs.build_checker == 'true'
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/monorepo"
+          # The checker build needs the full Rust workspace.
+          git sparse-checkout disable
+          rustup target add wasm32-unknown-unknown
+          curl -fsSL https://wasm-bindgen.github.io/wasm-pack/installer/init.sh | sh
+          npm --prefix ai-plugins/mcp/slint-preview run build:checker -- --release
+          checker_directory=ai-plugins/mcp/slint-preview/checker
+          test -s "$checker_directory/slint_wasm_interpreter.js"
+          test -s "$checker_directory/slint_wasm_interpreter_bg.wasm"
+          test -s "$checker_directory/package.json"
+          # wasm-pack ignores the entire output directory, which the mirror commits.
+          rm -f "$checker_directory/.gitignore"
+
       - name: Sync the plugin
         run: |
           set -euo pipefail
@@ -63,7 +80,7 @@ jobs:
           # The monorepo's ai-plugins/ directory is the single source of truth.
           # Mirror it onto this repo's root; README and .github are owned here
           # and are preserved. Symlinks out of ai-plugins/ become copies.
-          rsync -a --copy-unsafe-links --delete \
+          rsync -aL --delete \
             --exclude='.git' --exclude='.github' --exclude='README.md' \
             "$RUNNER_TEMP/monorepo/ai-plugins/" ./
           if [ -d mcp/slint-preview ]; then
